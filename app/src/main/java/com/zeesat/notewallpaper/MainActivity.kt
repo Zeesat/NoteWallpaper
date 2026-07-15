@@ -1,5 +1,7 @@
 package com.zeesat.notewallpaper
 
+import android.content.Context
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -28,6 +30,9 @@ sealed interface AppScreen {
     object Export : AppScreen
 }
 
+private const val PREFS_NAME = "note_wallpaper_prefs"
+private const val KEY_LAST_IMAGE_URI = "last_image_uri"
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,9 +46,16 @@ class MainActivity : ComponentActivity() {
         val generateWallpaperUseCase = GenerateWallpaperUseCase(applicationContext, renderer)
         val wallpaperViewModel = WallpaperViewModel(generateWallpaperUseCase)
 
+        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
         setContent {
             NoteWallpaperTheme {
+                val context = LocalContext.current
                 var currentScreen by remember { mutableStateOf<AppScreen>(AppScreen.Home) }
+
+                val previousImageUri: Uri? = remember {
+                    prefs.getString(KEY_LAST_IMAGE_URI, null)?.let { Uri.parse(it) }
+                }
 
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     val modifier = Modifier.padding(innerPadding)
@@ -52,9 +64,22 @@ class MainActivity : ComponentActivity() {
                         is AppScreen.Home -> {
                             HomeScreen(
                                 onImageSelected = { uri ->
+                                    // Persist read access for images selected through Android's file picker.
+                                    runCatching {
+                                        contentResolver.takePersistableUriPermission(
+                                            uri,
+                                            android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
+                                        )
+                                    }
+
+                                    // Persist the original (un-edited) image URI.
+                                    prefs.edit()
+                                        .putString(KEY_LAST_IMAGE_URI, uri.toString())
+                                        .apply()
                                     editorViewModel.setImageUri(uri)
                                     currentScreen = AppScreen.Editor
                                 },
+                                previousImageUri = previousImageUri,
                                 modifier = modifier
                             )
                         }
@@ -73,12 +98,12 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         is AppScreen.Preview -> {
-                            val context = LocalContext.current
+                            val context2 = LocalContext.current
                             PreviewScreen(
                                 viewModel = wallpaperViewModel,
                                 onBackClick = { currentScreen = AppScreen.Editor },
                                 onExportClick = { bitmap ->
-                                    wallpaperViewModel.exportWallpaper(context, bitmap)
+                                    wallpaperViewModel.exportWallpaper(context2, bitmap)
                                     currentScreen = AppScreen.Export
                                 },
                                 modifier = modifier
