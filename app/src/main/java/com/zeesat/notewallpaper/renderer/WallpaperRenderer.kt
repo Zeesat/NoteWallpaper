@@ -10,20 +10,34 @@ import com.zeesat.notewallpaper.domain.model.Note
 import com.zeesat.notewallpaper.util.BitmapUtils
 
 class WallpaperRenderer {
-    fun render(
-        context: Context,
-        background: Bitmap,
-        note: Note,
-        template: BubbleTemplate,
-        position: BubblePosition,
+
+    /**
+     * Step 1: Crop the source image to exact wallpaper resolution (center-crop).
+     */
+    fun cropToWallpaperSize(
+        source: Bitmap,
         targetWidth: Int,
         targetHeight: Int
     ): Bitmap {
+        return BitmapUtils.fitBitmap(source, targetWidth, targetHeight)
+    }
+
+    /**
+     * Step 2: Draw the bubble/note on top of an already-cropped wallpaper bitmap.
+     */
+    fun render(
+        context: Context,
+        croppedBackground: Bitmap,
+        note: Note,
+        template: BubbleTemplate,
+        position: BubblePosition
+    ): Bitmap {
+        val targetWidth = croppedBackground.width
+        val targetHeight = croppedBackground.height
         val outputBitmap = Bitmap.createBitmap(targetWidth, targetHeight, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(outputBitmap)
 
-        val fittedBg = BitmapUtils.fitBitmap(background, targetWidth, targetHeight)
-        canvas.drawBitmap(fittedBg, 0f, 0f, null)
+        canvas.drawBitmap(croppedBackground, 0f, 0f, null)
 
         if (note.text.isNotBlank()) {
             val paddingHorizontal = 64

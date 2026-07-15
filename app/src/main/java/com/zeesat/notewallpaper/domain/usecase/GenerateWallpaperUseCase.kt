@@ -16,14 +16,20 @@ class GenerateWallpaperUseCase(
         val srcBitmap = ImageUtils.loadBitmapFromUri(context, project.imageUri, screenMetrics.first, screenMetrics.second)
             ?: return null
 
-        return renderer.render(
-            context = context,
-            background = srcBitmap,
-            note = project.note,
-            template = project.bubbleTemplate,
-            position = project.position,
+        // Step 1: Crop to wallpaper resolution first
+        val croppedBitmap = renderer.cropToWallpaperSize(
+            source = srcBitmap,
             targetWidth = screenMetrics.first,
             targetHeight = screenMetrics.second
+        )
+
+        // Step 2: Place bubble on the cropped image
+        return renderer.render(
+            context = context,
+            croppedBackground = croppedBitmap,
+            note = project.note,
+            template = project.bubbleTemplate,
+            position = project.position
         )
     }
 }
