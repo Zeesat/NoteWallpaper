@@ -17,9 +17,11 @@ class WallpaperRenderer {
     fun cropToWallpaperSize(
         source: Bitmap,
         targetWidth: Int,
-        targetHeight: Int
+        targetHeight: Int,
+        offsetX: Float = 0.5f,
+        offsetY: Float = 0.5f
     ): Bitmap {
-        return BitmapUtils.fitBitmap(source, targetWidth, targetHeight)
+        return BitmapUtils.fitBitmap(source, targetWidth, targetHeight, offsetX, offsetY)
     }
 
     /**

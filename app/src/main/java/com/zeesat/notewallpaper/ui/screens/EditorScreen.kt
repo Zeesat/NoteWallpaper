@@ -9,6 +9,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.zeesat.notewallpaper.ui.components.BubbleSelector
@@ -26,7 +27,6 @@ fun EditorScreen(
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val scrollState = rememberScrollState()
 
     Scaffold(
         topBar = {
@@ -44,42 +44,59 @@ fun EditorScreen(
             modifier = modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(16.dp)
-                .verticalScroll(scrollState),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            WallpaperPreview(
-                croppedBitmap = uiState.croppedBitmap,
-                imageLoaded = uiState.imageUri != null,
-                noteText = uiState.noteText,
-                bubbleTemplate = uiState.selectedTemplate,
-                position = uiState.selectedPosition
-            )
-
-            NoteInput(
-                text = uiState.noteText,
-                onTextChange = { viewModel.updateNoteText(it) }
-            )
-
-            BubbleSelector(
-                templates = uiState.availableTemplates,
-                selectedTemplate = uiState.selectedTemplate,
-                onTemplateSelect = { viewModel.selectTemplate(it) }
-            )
-
-            PositionSelector(
-                selectedPosition = uiState.selectedPosition,
-                onPositionSelect = { viewModel.selectPosition(it) }
-            )
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            Button(
-                onClick = onNextClick,
-                enabled = uiState.croppedBitmap != null,
-                modifier = Modifier.fillMaxWidth().height(56.dp)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                contentAlignment = Alignment.Center
             ) {
-                Text("Generate & Preview")
+                WallpaperPreview(
+                    sourceBitmap = uiState.sourceBitmap,
+                    imageLoaded = uiState.imageUri != null,
+                    noteText = uiState.noteText,
+                    position = uiState.selectedPosition,
+                    cropCenterX = uiState.cropCenterX,
+                    cropCenterY = uiState.cropCenterY,
+                    cropScale = uiState.cropScale,
+                    screenWidth = uiState.screenWidth,
+                    screenHeight = uiState.screenHeight,
+                    onCropTransformChanged = { x, y, scale -> viewModel.updateCropTransform(x, y, scale) }
+                )
+            }
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 16.dp)
+                    .padding(bottom = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                NoteInput(
+                    text = uiState.noteText,
+                    onTextChange = { viewModel.updateNoteText(it) }
+                )
+
+                BubbleSelector(
+                    templates = uiState.availableTemplates,
+                    selectedTemplate = uiState.selectedTemplate,
+                    onTemplateSelect = { viewModel.selectTemplate(it) }
+                )
+
+                PositionSelector(
+                    selectedPosition = uiState.selectedPosition,
+                    onPositionSelect = { viewModel.selectPosition(it) }
+                )
+
+                Button(
+                    onClick = onNextClick,
+                    enabled = uiState.sourceBitmap != null,
+                    modifier = Modifier.fillMaxWidth().height(56.dp)
+                ) {
+                    Text("Generate & Preview")
+                }
             }
         }
     }

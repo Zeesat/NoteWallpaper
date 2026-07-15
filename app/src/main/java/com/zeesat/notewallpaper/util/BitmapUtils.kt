@@ -13,6 +13,10 @@ import java.io.OutputStream
 
 object BitmapUtils {
     fun fitBitmap(src: Bitmap, targetWidth: Int, targetHeight: Int): Bitmap {
+        return fitBitmap(src, targetWidth, targetHeight, 0.5f, 0.5f)
+    }
+
+    fun fitBitmap(src: Bitmap, targetWidth: Int, targetHeight: Int, offsetX: Float, offsetY: Float): Bitmap {
         val output = Bitmap.createBitmap(targetWidth, targetHeight, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(output)
 
@@ -21,11 +25,13 @@ object BitmapUtils {
 
         val srcRect = if (srcRatio > targetRatio) {
             val newWidth = (src.height * targetRatio).toInt()
-            val left = (src.width - newWidth) / 2
+            val maxOffset = src.width - newWidth
+            val left = (maxOffset * offsetX.coerceIn(0f, 1f)).toInt()
             Rect(left, 0, left + newWidth, src.height)
         } else {
             val newHeight = (src.width / targetRatio).toInt()
-            val top = (src.height - newHeight) / 2
+            val maxOffset = src.height - newHeight
+            val top = (maxOffset * offsetY.coerceIn(0f, 1f)).toInt()
             Rect(0, top, src.width, top + newHeight)
         }
 
