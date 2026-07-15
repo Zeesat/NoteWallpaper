@@ -75,7 +75,7 @@ fun EditorScreen(
 
             Button(
                 onClick = onNextClick,
-                enabled = uiState.imageUri != null && uiState.noteText.isNotEmpty(),
+                enabled = uiState.imageUri != null,
                 modifier = Modifier.fillMaxWidth().height(56.dp)
             ) {
                 Text("Generate & Preview")
