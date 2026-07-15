@@ -2,7 +2,6 @@ package com.zeesat.notewallpaper.ui.screens
 
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -18,8 +17,8 @@ fun HomeScreen(
     onImageSelected: (Uri) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val pickMediaLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickVisualMedia()
+    val pickImageLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
     ) { uri ->
         if (uri != null) {
             onImageSelected(uri)
@@ -53,9 +52,7 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(32.dp))
             Button(
                 onClick = {
-                    pickMediaLauncher.launch(
-                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                    )
+                    pickImageLauncher.launch("image/*")
                 },
                 modifier = Modifier.fillMaxWidth().height(56.dp)
             ) {
