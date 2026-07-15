@@ -40,9 +40,8 @@ class MainActivity : ComponentActivity() {
 
         // Manual DI/Instantiation for simpler codebase structure (perfect for V1)
         val bubbleRepository = BubbleRepositoryImpl()
-        val editorViewModel = EditorViewModel(bubbleRepository)
-
         val renderer = WallpaperRenderer()
+        val editorViewModel = EditorViewModel(applicationContext, bubbleRepository, renderer)
         val generateWallpaperUseCase = GenerateWallpaperUseCase(applicationContext, renderer)
         val wallpaperViewModel = WallpaperViewModel(generateWallpaperUseCase)
 
@@ -89,8 +88,9 @@ class MainActivity : ComponentActivity() {
                                 onBackClick = { currentScreen = AppScreen.Home },
                                 onNextClick = {
                                     val project = editorViewModel.toProject()
-                                    if (project != null) {
-                                        wallpaperViewModel.generatePreview(project)
+                                    val cropped = editorViewModel.uiState.value.croppedBitmap
+                                    if (project != null && cropped != null) {
+                                        wallpaperViewModel.generatePreview(project, cropped)
                                         currentScreen = AppScreen.Preview
                                     }
                                 },

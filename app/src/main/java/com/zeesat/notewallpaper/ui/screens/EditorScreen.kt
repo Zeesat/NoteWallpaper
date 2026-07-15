@@ -49,7 +49,8 @@ fun EditorScreen(
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             WallpaperPreview(
-                imageUri = uiState.imageUri,
+                croppedBitmap = uiState.croppedBitmap,
+                imageLoaded = uiState.imageUri != null,
                 noteText = uiState.noteText,
                 bubbleTemplate = uiState.selectedTemplate,
                 position = uiState.selectedPosition
@@ -75,7 +76,7 @@ fun EditorScreen(
 
             Button(
                 onClick = onNextClick,
-                enabled = uiState.imageUri != null,
+                enabled = uiState.croppedBitmap != null,
                 modifier = Modifier.fillMaxWidth().height(56.dp)
             ) {
                 Text("Generate & Preview")

@@ -1,9 +1,11 @@
 package com.zeesat.notewallpaper.ui.components
 
-import android.net.Uri
+import android.graphics.Bitmap
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -11,15 +13,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 import com.zeesat.notewallpaper.domain.model.BubblePosition
 import com.zeesat.notewallpaper.domain.model.BubbleTemplate
 
 @Composable
 fun WallpaperPreview(
-    imageUri: Uri?,
+    croppedBitmap: Bitmap?,
+    imageLoaded: Boolean,
     noteText: String,
     bubbleTemplate: BubbleTemplate?,
     position: BubblePosition,
@@ -33,12 +36,12 @@ fun WallpaperPreview(
             .background(Color.DarkGray),
         contentAlignment = Alignment.Center
     ) {
-        if (imageUri != null) {
-            AsyncImage(
-                model = imageUri,
+        if (croppedBitmap != null) {
+            Image(
+                bitmap = croppedBitmap.asImageBitmap(),
                 contentDescription = "Selected Background",
                 modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Fit
             )
 
             Box(
@@ -69,6 +72,8 @@ fun WallpaperPreview(
                     }
                 }
             }
+        } else if (imageLoaded) {
+            CircularProgressIndicator()
         } else {
             Text(
                 text = "No Image Selected",

@@ -14,7 +14,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -52,17 +51,13 @@ class WallpaperViewModel(
     private val _exportState = MutableStateFlow<ExportStatus>(ExportStatus.Idle)
     val exportState: StateFlow<ExportStatus> = _exportState.asStateFlow()
 
-    fun generatePreview(project: WallpaperProject) {
+    fun generatePreview(project: WallpaperProject, croppedBitmap: Bitmap) {
         viewModelScope.launch {
             _previewState.value = WallpaperUiState.Loading
             val bitmap = withContext(Dispatchers.Default) {
-                generateWallpaperUseCase(project)
+                generateWallpaperUseCase(project, croppedBitmap)
             }
-            if (bitmap != null) {
-                _previewState.value = WallpaperUiState.Success(bitmap)
-            } else {
-                _previewState.value = WallpaperUiState.Error("Failed to render wallpaper bitmap")
-            }
+            _previewState.value = WallpaperUiState.Success(bitmap)
         }
     }
 
