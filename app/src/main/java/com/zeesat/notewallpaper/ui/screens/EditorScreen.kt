@@ -45,13 +45,21 @@ fun EditorScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            Box(
+            BoxWithConstraints(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
                     .padding(horizontal = 16.dp, vertical = 12.dp),
                 contentAlignment = Alignment.Center
             ) {
+                val frameAspect = if (uiState.screenWidth > 0 && uiState.screenHeight > 0) {
+                    uiState.screenWidth.toFloat() / uiState.screenHeight
+                } else {
+                    9f / 16f
+                }
+                val maxPreviewHeight = minOf(maxHeight, 420.dp)
+                val previewWidth = minOf(maxWidth, maxPreviewHeight * frameAspect)
+
                 WallpaperPreview(
                     sourceBitmap = uiState.sourceBitmap,
                     imageLoaded = uiState.imageUri != null,
@@ -62,7 +70,8 @@ fun EditorScreen(
                     cropScale = uiState.cropScale,
                     screenWidth = uiState.screenWidth,
                     screenHeight = uiState.screenHeight,
-                    onCropTransformChanged = { x, y, scale -> viewModel.updateCropTransform(x, y, scale) }
+                    onCropTransformChanged = { x, y, scale -> viewModel.updateCropTransform(x, y, scale) },
+                    modifier = Modifier.width(previewWidth)
                 )
             }
 
