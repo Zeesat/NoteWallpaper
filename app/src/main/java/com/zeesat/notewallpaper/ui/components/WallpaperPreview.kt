@@ -31,12 +31,14 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import com.zeesat.notewallpaper.domain.model.BubblePosition
+import com.zeesat.notewallpaper.util.FontManager
 
 @Composable
 fun WallpaperPreview(
     sourceBitmap: Bitmap?,
     imageLoaded: Boolean,
     noteText: String,
+    fontId: String,
     position: BubblePosition,
     cropCenterX: Float,
     cropCenterY: Float,
@@ -51,6 +53,8 @@ fun WallpaperPreview(
     val latestScale by rememberUpdatedState(cropScale)
     val latestOnTransformChanged by rememberUpdatedState(onCropTransformChanged)
     val paint = remember { Paint(Paint.FILTER_BITMAP_FLAG) }
+    val fontOption = remember(fontId) { FontManager.getOptionById(fontId) }
+    val fontFamily = remember(fontOption) { FontManager.getFontFamily(fontOption) }
     val frameAspect = if (screenWidth > 0 && screenHeight > 0) {
         screenWidth.toFloat() / screenHeight
     } else {
@@ -154,7 +158,7 @@ fun WallpaperPreview(
                         Text(
                             text = noteText,
                             color = Color.Black,
-                            style = MaterialTheme.typography.bodyMedium
+                            style = MaterialTheme.typography.bodyMedium.copy(fontFamily = fontFamily)
                         )
                     }
                 }

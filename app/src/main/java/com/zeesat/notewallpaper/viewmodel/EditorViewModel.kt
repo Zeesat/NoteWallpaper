@@ -33,6 +33,7 @@ data class EditorUiState(
     val screenWidth: Int = 0,
     val screenHeight: Int = 0,
     val noteText: String = "",
+    val selectedFontId: String = "sans-serif",
     val availableTemplates: List<BubbleTemplate> = emptyList(),
     val selectedTemplate: BubbleTemplate? = null,
     val selectedPosition: BubblePosition = BubblePosition.CENTER,
@@ -156,13 +157,17 @@ class EditorViewModel(
         _uiState.update { it.copy(selectedPosition = position) }
     }
 
+    fun selectFont(fontId: String) {
+        _uiState.update { it.copy(selectedFontId = fontId) }
+    }
+
     fun toProject(): WallpaperProject? {
         val state = _uiState.value
         val uri = state.imageUri ?: return null
         val template = state.selectedTemplate ?: return null
         return WallpaperProject(
             imageUri = uri,
-            note = Note(state.noteText),
+            note = Note(state.noteText, state.selectedFontId),
             bubbleTemplate = template,
             position = state.selectedPosition
         )

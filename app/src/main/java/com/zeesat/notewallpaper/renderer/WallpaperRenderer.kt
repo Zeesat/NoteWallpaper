@@ -8,12 +8,10 @@ import com.zeesat.notewallpaper.domain.model.BubblePosition
 import com.zeesat.notewallpaper.domain.model.BubbleTemplate
 import com.zeesat.notewallpaper.domain.model.Note
 import com.zeesat.notewallpaper.util.BitmapUtils
+import com.zeesat.notewallpaper.util.FontManager
 
 class WallpaperRenderer {
 
-    /**
-     * Step 1: Crop the source image to exact wallpaper resolution (center-crop).
-     */
     fun cropToWallpaperSize(
         source: Bitmap,
         targetWidth: Int,
@@ -24,9 +22,6 @@ class WallpaperRenderer {
         return BitmapUtils.fitBitmap(source, targetWidth, targetHeight, offsetX, offsetY)
     }
 
-    /**
-     * Step 2: Draw the bubble/note on top of an already-cropped wallpaper bitmap.
-     */
     fun render(
         context: Context,
         croppedBackground: Bitmap,
@@ -42,13 +37,16 @@ class WallpaperRenderer {
         canvas.drawBitmap(croppedBackground, 0f, 0f, null)
 
         if (note.text.isNotBlank()) {
+            val fontOption = FontManager.getOptionById(note.fontId)
+            val typeface = FontManager.resolveTypeface(context, fontOption)
+
             val paddingHorizontal = 64
             val paddingVertical = 48
             val maxTextWidth = (targetWidth * 0.7f).toInt()
 
-            val textHeight = TextRenderer.measureTextHeight(note.text, maxTextWidth)
-            val textPaint = android.text.TextPaint().apply { textSize = 48f }
-            val textWidth = textPaint.measureText(note.text).coerceAtMost(maxTextWidth.toFloat()).toInt()
+            val textHeight = TextRenderer.measureTextHeight(note.text, maxTextWidth, typeface = typeface)
+            val textWidth = TextRenderer.measureTextWidth(note.text, typeface = typeface)
+                .coerceAtMost(maxTextWidth.toFloat()).toInt()
 
             val bubbleWidth = textWidth + (paddingHorizontal * 2)
             val bubbleHeight = textHeight + (paddingVertical * 2)
@@ -74,7 +72,8 @@ class WallpaperRenderer {
                 text = note.text,
                 x = coordinates.x + paddingHorizontal,
                 y = coordinates.y + paddingVertical,
-                maxWidth = maxTextWidth
+                maxWidth = maxTextWidth,
+                typeface = typeface
             )
         }
 

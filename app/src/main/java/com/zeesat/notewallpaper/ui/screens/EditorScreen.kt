@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.zeesat.notewallpaper.ui.components.BubbleSelector
+import com.zeesat.notewallpaper.ui.components.FontSelector
 import com.zeesat.notewallpaper.ui.components.NoteInput
 import com.zeesat.notewallpaper.ui.components.PositionSelector
 import com.zeesat.notewallpaper.ui.components.WallpaperPreview
@@ -71,6 +72,7 @@ fun EditorScreen(
                     sourceBitmap = uiState.sourceBitmap,
                     imageLoaded = uiState.imageUri != null,
                     noteText = uiState.noteText,
+                    fontId = uiState.selectedFontId,
                     position = uiState.selectedPosition,
                     cropCenterX = uiState.cropCenterX,
                     cropCenterY = uiState.cropCenterY,
@@ -104,6 +106,11 @@ fun EditorScreen(
                 NoteInput(
                     text = uiState.noteText,
                     onTextChange = { viewModel.updateNoteText(it) }
+                )
+
+                FontSelector(
+                    selectedFontId = uiState.selectedFontId,
+                    onFontSelect = { viewModel.selectFont(it) }
                 )
 
                 Row(
