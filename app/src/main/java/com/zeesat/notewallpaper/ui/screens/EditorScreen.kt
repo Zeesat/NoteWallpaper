@@ -4,13 +4,14 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.zeesat.notewallpaper.ui.components.BubbleSelector
 import com.zeesat.notewallpaper.ui.components.NoteInput
@@ -31,12 +32,18 @@ fun EditorScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Edit Note Wallpaper") },
+                title = { Text("Edit Wallpaper") },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
             )
         }
     ) { innerPadding ->
@@ -75,36 +82,62 @@ fun EditorScreen(
                 )
             }
 
+            HorizontalDivider(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                color = MaterialTheme.colorScheme.outlineVariant
+            )
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 16.dp)
-                    .padding(bottom = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+                Text(
+                    text = "Customize",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+
                 NoteInput(
                     text = uiState.noteText,
                     onTextChange = { viewModel.updateNoteText(it) }
                 )
 
-                BubbleSelector(
-                    templates = uiState.availableTemplates,
-                    selectedTemplate = uiState.selectedTemplate,
-                    onTemplateSelect = { viewModel.selectTemplate(it) }
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    BubbleSelector(
+                        templates = uiState.availableTemplates,
+                        selectedTemplate = uiState.selectedTemplate,
+                        onTemplateSelect = { viewModel.selectTemplate(it) },
+                        modifier = Modifier.weight(1f)
+                    )
 
-                PositionSelector(
-                    selectedPosition = uiState.selectedPosition,
-                    onPositionSelect = { viewModel.selectPosition(it) }
-                )
+                    PositionSelector(
+                        selectedPosition = uiState.selectedPosition,
+                        onPositionSelect = { viewModel.selectPosition(it) },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
 
                 Button(
                     onClick = onNextClick,
                     enabled = uiState.sourceBitmap != null,
-                    modifier = Modifier.fillMaxWidth().height(56.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp),
+                    shape = MaterialTheme.shapes.medium
                 ) {
-                    Text("Generate & Preview")
+                    Text(
+                        text = "Generate & Preview",
+                        style = MaterialTheme.typography.titleSmall
+                    )
                 }
             }
         }
